@@ -3,6 +3,10 @@ import numpy as np
 from matplotlib.patches import RegularPolygon
 
 LINE_WIDTH=0.5
+SQUARE_COLOR='green'
+TRI_COLOR1='blue'
+TRI_COLOR2='yellow'
+
 
 def draw_hexagon(ax, center, size, color="black"):
     """Draw a regular hexagon centered at `center` with the given `size`."""
@@ -46,7 +50,7 @@ def draw_pattern(ax, center, size, num_layers):
             )
 
             # square = plt.Rectangle(rect_xy, width=size, height=size, facecolor='red', angle=angle_deg, edgecolor="black", linewidth=LINE_WIDTH)
-            square = RegularPolygon(center_xy, 4, radius=np.sqrt(2) / 2, orientation=(75 - 30 * idx) * np.pi / 180, facecolor='red', edgecolor="black", linewidth=LINE_WIDTH)
+            square = RegularPolygon(center_xy, 4, radius=np.sqrt(2) / 2, orientation=(75 - 30 * idx) * np.pi / 180, facecolor=SQUARE_COLOR, edgecolor="black", linewidth=LINE_WIDTH)
             ax.add_patch(square)
             
             
@@ -54,9 +58,25 @@ def draw_pattern(ax, center, size, num_layers):
                 rect_xy[0] + size / np.sqrt(3) * np.cos(60 * idx * np.pi / 180),
                 rect_xy[1] + size / np.sqrt(3) * np.sin(60 * idx * np.pi / 180),
             )
-            triangle = RegularPolygon(tri_center, 3, radius=1 / np.sqrt(3), orientation=(60 * idx - 30) * np.pi / 180, facecolor='blue', edgecolor="black", linewidth=LINE_WIDTH)
+            triangle = RegularPolygon(tri_center, 3, radius=1 / np.sqrt(3), orientation=(60 * idx - 30) * np.pi / 180, facecolor=TRI_COLOR1, edgecolor="black", linewidth=LINE_WIDTH)
             ax.add_patch(triangle) 
 
+            for tidx in range(1, layer):
+                shift_rad = (-90 + 60 * idx) * np.pi / 180
+                new_xy = (
+                    tri_center[0] + size * tidx * np.cos(shift_rad),
+                    tri_center[1] + size * tidx * np.sin(shift_rad),
+                )
+                triangle = RegularPolygon(new_xy, 3, radius=1 / np.sqrt(3), orientation=(60 * idx - 30) * np.pi / 180, facecolor=TRI_COLOR1, edgecolor="black", linewidth=LINE_WIDTH)
+                ax.add_patch(triangle) 
+
+
+                new_xy_2 = (
+                    rect_xy[0] + size / np.sqrt(3) * np.cos(60 * (idx - 1) * np.pi / 180) + size * (tidx - 1) * np.cos(shift_rad),
+                    rect_xy[1] + size / np.sqrt(3) * np.sin(60 * (idx - 1) * np.pi / 180) + size * (tidx - 1) * np.sin(shift_rad),
+                )
+                triangle = RegularPolygon(new_xy_2, 3, radius=1 / np.sqrt(3), orientation=-(60 * idx - 30) * np.pi / 180, facecolor=TRI_COLOR2, edgecolor="black", linewidth=LINE_WIDTH)
+                ax.add_patch(triangle) 
 
     
 #            continue
@@ -75,7 +95,7 @@ ax.axis("equal")
 ax.axis("off")
 
 # Draw the pattern
-draw_pattern(ax, center=(0, 0), size=1, num_layers=3)
+draw_pattern(ax, center=(0, 0), size=1, num_layers=4)
 
 # Show the plot
 plt.show()
